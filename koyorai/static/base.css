@@ -1,0 +1,34 @@
+body {
+    margin-top: 20px;
+}
+
+.header {
+    background-color: brown;
+    display: flex;
+    flex-direction: row;
+    align-items: end;
+    padding: 1em;
+}
+
+.header-item {
+    margin-right: 1em;
+}
+
+.header-item > a {
+    color: white;
+    text-decoration: none;
+}
+
+.home-link > a {
+    font-size: 2em;
+}
+
+.body-wrapper {
+    padding: 1em;
+}
+
+.footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}

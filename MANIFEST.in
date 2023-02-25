@@ -1,0 +1,4 @@
+include koyorai/schema.sql
+graft koyorai/static
+graft koyorai/templates
+global-exclude *.pyc

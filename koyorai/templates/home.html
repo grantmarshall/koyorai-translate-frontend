@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}KonKoyo!{% endblock %}
+
+{% block head %}
+{% endblock %}
+
+{% block body %}
+<p>
+    Welcome to my lab! This site mainly acts as a landing spot for my
+    nlp-related projects. Right now, that mainly means my
+    <a href="{{ url_for('translate.app') }}">Translator/Transcriber</a> but in
+    the future there will hopefully be a few other things to put here.
+</p>
+{% endblock %}
