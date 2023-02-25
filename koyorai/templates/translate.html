@@ -4,7 +4,7 @@
 
 {% block head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='translate/app.css') }}">
-<script src="{{ url_for('static', filename='translate/app.js') }}"></script>
+<script src="{{ url_for('static', filename='translate/app.js') }}" defer></script>
 {% endblock %}
 
 {% block body %}
@@ -26,12 +26,7 @@
     fresh translation.
 </p>
 <div class="recorder">
-    <button>Record</button>
-    <button>Download</button>
-    <button>Reset</button>
-    <br />
-    Session Id: <br />
-    Time: <br />
-    Output: <br />
+    <button class="record-button">Record</button>
+    <button class="reset-button">Reset</button>
 </div>
 {% endblock %}
