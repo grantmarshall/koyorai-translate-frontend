@@ -7,19 +7,52 @@ function uuidv4() {
 
 // Object for controlling the actual recording of audio chunks
 var audioRecorder = {
-    // Start recording audio from the user's mic
-    start: function () {
-        //...
+    audioStream: null,
+    mediaRecorder: null,
+    chunks: [],
+    // Start recording audio from the user's mic and execute the provided
+    // callback on each data chunk recorded by the MediaRecorder.
+    start: function (callback) {
+        if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) {
+            // Feature is not supported in browser
+            return Promise.reject(
+                new Error(
+                    'mediaDevices API or getUserMedia method is not supported in this browser.'));
+        }
+        return navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+            audioRecorder.audioStream = stream;
+
+            // Create a MediaRecorder instance that will trigger the data
+            // callback every 100ms.
+            audioRecorder.mediaRecorder = new MediaRecorder(stream);
+            audioRecorder.mediaRecorder.ondataavailable = function(event) {
+                console.log('Audio chunk recorded');
+                callback(event.data);
+                audioRecorder.chunks.push(event.data);
+            };
+            audioRecorder.mediaRecorder.start(500);
+        });
     },
     // Pause recording audio from the user's mic
     stop: function () {
-        //...
+        audioRecorder.mediaRecorder.stop();
+        chunks = [];
+        return new Promise((resolve) => {
+            console.log('Stopping audio api');
+            resolve(1);
+        });
     },
     // Reset the audio being sent from the user and create a new session
     cancel: function () {
-        //...
+        return new Promise((resolve) => {
+            console.log('Cancelling audio api');
+            resolve(1);
+        });
     }
 };
+
+// Node whose innertext will contain the translations
+var outputField = document.querySelector('.output-field');
 
 // Logic for session management
 var sessionId;
@@ -31,6 +64,7 @@ var startSession = function() {
         'Session with id %s started at timestamp %s',
         sessionId,
         sessionStartTs);
+    outputField.innerHTML = 'Awaiting translation...';
 };
 var endSession = function() {
     sessionId = null;
@@ -44,15 +78,48 @@ var recordButtonState = {
 }
 recordButton.onclick = function () {
     if (recordButtonState.recording) {
-        console.log('Pausing!');
-        audioRecorder.stop();
+        audioRecorder.stop().then(() => {
+            console.log('Pausing audio recording');
+            recordButton.innerHTML = 'Start';
+        });
     } else {
-        console.log('Recording!');
-        // If we don't have an active session start a new one
-        if (sessionId == null) {
-            startSession();
-        }
-        audioRecorder.start();
+        audioRecorder.start(data => {
+            data.text().then(dataString => {
+                // Callback to send data to the server with each chunk
+                fetch('http://127.0.0.1:5000/translate/update', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    // Set the post data
+                    body: JSON.stringify({
+                        id: sessionId,
+                        type: data.type,
+                        size: data.size,
+                        timestamp: (new Date()).getTime(),
+                        data: dataString
+                    })
+                }).then(response => console.log(response));
+            });
+        }).then(() => {
+            // Ran when the audio stream successfully starts
+            console.log('Starting audio recording');
+
+            // If we don't have an active session start a new one
+            if (sessionId == null) {
+                startSession();
+            }
+
+            recordButton.innerHTML = 'Stop';
+        })
+        .catch(error => {
+            // No Browser Support Error
+            if (error.message.includes("mediaDevices API or getUserMedia method is not supported in this browser.")) {       
+                console.log("To record audio, use browsers like Chrome and Firefox.");
+                return;
+            }
+        });
     }
     recordButtonState.recording = !recordButtonState.recording;
 }

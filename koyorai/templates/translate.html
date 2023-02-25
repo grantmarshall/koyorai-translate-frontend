@@ -17,16 +17,20 @@
     is being spoken.
 </p>
 <p>
-    Press record to have the translation service begin listening to your
+    Press start to have the translation service begin listening to your
     mircrophone and live-translating the audio in the window below. Press
-    pause to temporarily stop recording/translating without resetting the
-    current translation. Press download to download the audio of the
-    current session along with an anotated subtitle English subtitle file.
-    Press reset to clear the current recording and translation to start a
-    fresh translation.
+    stop to temporarily stop recording/translating without resetting the
+    current translation. Press reset to clear the current recording and
+    translation to start a fresh translation.
 </p>
 <div class="recorder">
-    <button class="record-button">Record</button>
-    <button class="reset-button">Reset</button>
+    <div class="controls">
+        <button class="record-button">Start</button>
+        <button class="reset-button">Reset</button>
+    </div>
+    <div class="output">
+        <div class="output-label">Output:</div>
+        <div class="output-field"></div>
+    </div>
 </div>
 {% endblock %}

@@ -3,3 +3,19 @@
     border-radius: 0.5em;
     padding: 1em;
 }
+
+.recorder > .controls {
+    margin-bottom: 2em;
+}
+
+.recorder > .output > .output-label {
+    margin-bottom: 0.5em;
+    margin-left: 0.25em;
+}
+
+.recorder > .output > .output-field {
+    background-color: white;
+    border-radius: 0.25em;
+    min-height: 160px;
+    padding: 0.25em;
+}
