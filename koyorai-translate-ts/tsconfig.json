@@ -1,0 +1,7 @@
+{
+    "compilerOptions": {
+        "module": "CommonJS",
+        "outDir": "../koyorai/static/translate",
+        "target": "ES5",
+    }
+}
