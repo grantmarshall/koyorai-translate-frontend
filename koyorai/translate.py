@@ -1,6 +1,8 @@
 from flask import Blueprint, render_template, request
 from uuid import uuid4
 
+from koyorai.db import get_db
+
 bp = Blueprint('translate', __name__, url_prefix='/translate')
 
 
@@ -29,14 +31,14 @@ def update():
     ms_offset = request_data['timestamp']
     data = bytes(request_data['data'], 'utf-8')
 
-    # TODO(grantmarshall): Implement the insertion logic for the chunk
-    print({
-        session_id: session_id,
-        data_type: data_type,
-        data_size: data_size,
-        ms_offset: ms_offset,
-        data: data
-    })
+    db = get_db()
+    db.execute(
+        'INSERT INTO audio_chunks'
+        ' (session_id, user_ts, data_type, data_size, chunk)'
+        ' VALUES (?, ?, ?, ?, ?)',
+        (session_id, ms_offset, data_type, data_size, data))
+    db.commit()
+    print('Data received for session {}'.format(session_id))
 
     return {}, 200
 
@@ -53,7 +55,11 @@ def start_session():
         'sessionId': uuid4(),
         'sessionStartTs': request.args.get('timestamp')
     }
-
-    # TODO(grantmarshall): Implement the insertion logic for a new session
+    db = get_db()
+    db.execute('INSERT INTO translation_session (session_uuid, start_ts)'
+        ' VALUES (?, ?)',
+        (str(session['sessionId']), int(session['sessionStartTs'])))
+    db.commit()
+    print('Session {} started'.format(session['sessionId']))
 
     return session, 200
