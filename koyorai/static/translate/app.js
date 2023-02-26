@@ -56,7 +56,7 @@ recordButton.onclick = function () {
             audioRecorder.start(data => {
                 data.text().then(dataString => {
                     // Callback to send data to the server with each chunk
-                    fetch('http://127.0.0.1:5000/translate/translation', {
+                    fetch('http://127.0.0.1:5000/translate/upload', {
                         method: 'POST',
                         headers: {
                             'Accept': 'application/json',
