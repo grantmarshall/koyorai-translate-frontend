@@ -3,7 +3,6 @@ import sqlite3
 import click
 from flask import current_app, g
 import io
-import numpy as np
 import soundfile as sf
 
 
