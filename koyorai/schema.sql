@@ -3,7 +3,9 @@ DROP TABLE IF EXISTS audio_chunks;
 DROP TABLE IF EXISTS translations;
 
 CREATE TABLE translation_session(
-    id INTEGER PRIMARY KEY AUTOINCREMENT
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_uuid TEXT NOT NULL,
+    start_ts TIMESTAMP NOT NULL
 );
 
 CREATE TABLE audio_chunks(
@@ -11,6 +13,7 @@ CREATE TABLE audio_chunks(
     translation_session_id INTEGER NOT NULL,
     insert_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     user_ts TIMESTAMP NOT NULL,
+    chunk BLOB NOT NULL,
     FOREIGN KEY (translation_session_id) REFERENCES translation_session (id)
 );
 

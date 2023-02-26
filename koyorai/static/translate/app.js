@@ -60,11 +60,27 @@ var sessionStartTs;
 var startSession = function() {
     sessionId = uuidv4();
     sessionStartTs = (new Date()).getTime();
-    console.log(
-        'Session with id %s started at timestamp %s',
-        sessionId,
-        sessionStartTs);
-    outputField.innerHTML = 'Awaiting translation...';
+    fetch('http://127.0.0.1:5000/translate/start_session', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        // Set the post data
+        body: JSON.stringify({
+            id: sessionId,
+            startTs: sessionStartTs
+        })
+    }).then((response) => {
+        console.log(
+            'Session with id %s started at timestamp %s with status %s',
+            sessionId,
+            sessionStartTs,
+            response.message);
+        outputField.innerHTML = 'Awaiting translation...';
+    }).except((error) => {
+        console.log('Failed to start session with error %s', error);
+    })
 };
 var endSession = function() {
     sessionId = null;
