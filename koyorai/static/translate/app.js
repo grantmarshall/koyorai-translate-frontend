@@ -1,3 +1,7 @@
+var sessionActive = false;
+var sessionId = null;
+var sessionStartTs = null;
+
 // Object for controlling the actual recording of audio chunks
 var audioRecorder = {
     mediaRecorder: null,
@@ -22,6 +26,12 @@ var audioRecorder = {
     },
     // Pause recording audio from the user's mic
     stop: function () {
+        audioRecorder.mediaRecorder.onstop = function() {
+            sessionActive = false;
+            sessionId = null;
+            sessionStartTs = null;
+            recordButton.innerHTML = 'Start';
+        }
         audioRecorder.mediaRecorder.stop();
     },
 };
@@ -42,17 +52,15 @@ var startSession = function() {
 
 // Logic for record button
 var recordButton = document.querySelector('.record-button');
-var recordButtonState = {
-    recording: false
-}
 recordButton.onclick = function () {
     if (audioRecorder.mediaRecorder && audioRecorder.mediaRecorder.state == 'recording') {
         audioRecorder.stop();
-        recordButton.innerHTML = 'Start';
+        console.log('Stopping audio recording');
     } else {
         startSession().then((response) => { return response.json(); }).then((response) => {
-            var sessionId = response.sessionId;
-            var sessionStartTs = response.sessionStartTs;
+            sessionActive = true;
+            sessionId = response.sessionId;
+            sessionStartTs = response.sessionStartTs;
             audioRecorder.start(data => {
                 data.text().then(dataString => {
                     // Callback to send data to the server with each chunk
@@ -64,7 +72,7 @@ recordButton.onclick = function () {
                         },
                         // Set the post data
                         body: JSON.stringify({
-                            id: sessionId,
+                            id: response.sessionId,
                             type: data.type,
                             size: data.size,
                             timestamp: (new Date()).getTime() - sessionStartTs,
@@ -88,5 +96,4 @@ recordButton.onclick = function () {
             }
         });
     }
-    recordButtonState.recording = !recordButtonState.recording;
 }
