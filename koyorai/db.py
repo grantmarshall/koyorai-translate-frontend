@@ -50,7 +50,7 @@ def write_session_command(id):
     ).fetchall()]
     print('Found {} chunks in session {}'.format(len(chunks), id))
     data, samplerate = sf.read(io.BytesIO(b''.join(chunks)))
-    outfile = '{}.ogg'.format(id)
+    outfile = '{}.wav'.format(id)
     sf.write(outfile, data, samplerate)
     click.echo('Wrote out session {} to file {}'.format(id, outfile))
 
