@@ -2,6 +2,9 @@ import sqlite3
 
 import click
 from flask import current_app, g
+import io
+import numpy as np
+import soundfile as sf
 
 
 def get_db():
@@ -36,6 +39,24 @@ def init_db_command():
     click.echo('Initialized the database.')
 
 
+@click.command('write-session')
+@click.argument('id', nargs=1)
+def write_session_command(id):
+    db = get_db()
+    chunks = [bytes(chunk['chunk']) for chunk in db.execute(
+        'SELECT c.chunk AS chunk FROM audio_chunks c'
+        ' WHERE c.session_id = ?'
+        ' ORDER BY c.user_ts ASC',
+        (id, )
+    ).fetchall()]
+    print('Found {} chunks in session {}'.format(len(chunks), id))
+    data, samplerate = sf.read(io.BytesIO(b''.join(chunks)))
+    outfile = '{}.ogg'.format(id)
+    sf.write(outfile, data, samplerate)
+    click.echo('Wrote out session {} to file {}'.format(id, outfile))
+
+
 def init_app(app):
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_command)
+    app.cli.add_command(write_session_command)

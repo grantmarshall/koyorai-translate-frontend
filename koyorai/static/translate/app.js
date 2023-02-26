@@ -21,7 +21,7 @@ var audioRecorder = {
             audioRecorder.mediaRecorder.ondataavailable = function(event) {
                 callback(event.data);
             };
-            audioRecorder.mediaRecorder.start(500);
+            audioRecorder.mediaRecorder.start(1000);
         });
     },
     // Pause recording audio from the user's mic
@@ -62,7 +62,13 @@ recordButton.onclick = function () {
             sessionId = response.sessionId;
             sessionStartTs = response.sessionStartTs;
             audioRecorder.start(data => {
-                data.text().then(dataString => {
+                var fileReader = new FileReader();
+                fileReader.onload = (event) => {
+                    var arrayBuffer = event.target.result;
+                    var base64 = btoa(
+                        new Uint8Array(arrayBuffer)
+                          .reduce((data, byte) => data + String.fromCharCode(byte), '')
+                      );
                     // Callback to send data to the server with each chunk
                     fetch('http://127.0.0.1:5000/translate/upload', {
                         method: 'POST',
@@ -76,10 +82,11 @@ recordButton.onclick = function () {
                             type: data.type,
                             size: data.size,
                             timestamp: (new Date()).getTime() - sessionStartTs,
-                            data: dataString
+                            data: base64
                         })
-                    }).then(response => console.log(response));
-                });
+                    });
+                };
+                fileReader.readAsArrayBuffer(data);
             }).then(() => {
                 // Ran when the audio stream successfully starts
                 console.log('Starting audio recording');

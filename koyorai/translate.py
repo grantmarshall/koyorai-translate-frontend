@@ -1,3 +1,4 @@
+from base64 import b64decode
 from flask import Blueprint, render_template, request
 from uuid import uuid4
 
@@ -29,7 +30,7 @@ def update():
     data_type = request_data['type']
     data_size = request_data['size']
     ms_offset = request_data['timestamp']
-    data = bytes(request_data['data'], 'utf-8')
+    data = b64decode(request_data['data'])
 
     db = get_db()
     db.execute(
