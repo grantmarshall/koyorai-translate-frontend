@@ -23,6 +23,7 @@ CREATE TABLE translations (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     session_id INTEGER NOT NULL,
     audio_chunk_id INTEGER NOT NULL,
+    tl TEXT NOT NULL,
     insert_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (session_id) REFERENCES translation_session (id),
     FOREIGN KEY (audio_chunk_id) REFERENCES audio_chunks (id)

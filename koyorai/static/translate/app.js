@@ -1,6 +1,7 @@
 var sessionActive = false;
 var sessionId = null;
 var sessionStartTs = null;
+var translateCallbackId = null;
 
 // Object for controlling the actual recording of audio chunks
 var audioRecorder = {
@@ -15,13 +16,12 @@ var audioRecorder = {
                     'mediaDevices API or getUserMedia method is not supported in this browser.'));
         }
         return navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-            // Create a MediaRecorder instance that will trigger the data
-            // callback every 100ms.
+            // Create a MediaRecorder instance that will trigger the callback.
             audioRecorder.mediaRecorder = new MediaRecorder(stream);
             audioRecorder.mediaRecorder.ondataavailable = function(event) {
                 callback(event.data);
             };
-            audioRecorder.mediaRecorder.start(1000);
+            audioRecorder.mediaRecorder.start(100);
         });
     },
     // Pause recording audio from the user's mic
@@ -56,6 +56,7 @@ recordButton.onclick = function () {
     if (audioRecorder.mediaRecorder && audioRecorder.mediaRecorder.state == 'recording') {
         audioRecorder.stop();
         console.log('Stopping audio recording');
+        clearInterval(translateCallbackId);
     } else {
         startSession().then((response) => { return response.json(); }).then((response) => {
             sessionActive = true;
@@ -102,5 +103,16 @@ recordButton.onclick = function () {
                 return;
             }
         });
+        translateCallbackId = window.setInterval(function() {
+            fetch('http://127.0.0.1:5000/translate/latest?session_id=' + sessionId, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => response.json()).then(json => {
+                outputField.innerHTML = json['text']
+            })
+        }, 500);
     }
 }

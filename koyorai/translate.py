@@ -16,10 +16,20 @@ def app():
 @bp.route('/latest')
 def latest():
     """Retrieve the latest translation for a given session."""
-    # TODO(grantmarshall): Implement the retrieval logic for translations
-    # For now, just retrieve the latest 30 sec window translation
+    if request.args.get('session_id') is None:
+        return {
+            'message': 'missing session id'
+        }, 400
+    session_id = str(request.args.get('session_id'))
+    print(session_id)
+    db = get_db()
+    result = db.execute(
+        'SELECT t.tl FROM translations t WHERE t.session_id = ? '
+        ' ORDER BY insert_ts DESC LIMIT 1',
+        (session_id, )).fetchone()
+    text = result[0] if result is not None else ''
 
-    return {}, 200
+    return {"text": text}, 200
 
 
 @bp.route('/upload', methods=['POST'])
@@ -58,8 +68,8 @@ def start_session():
     }
     db = get_db()
     db.execute('INSERT INTO translation_session (session_uuid, start_ts)'
-        ' VALUES (?, ?)',
-        (str(session['sessionId']), int(session['sessionStartTs'])))
+               ' VALUES (?, ?)',
+               (str(session['sessionId']), int(session['sessionStartTs'])))
     db.commit()
     print('Session {} started'.format(session['sessionId']))
 
